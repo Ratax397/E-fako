@@ -1,6 +1,8 @@
 """Configuration de l'application avec Pydantic Settings."""
 
 from typing import List, Optional
+from pydantic_settings import BaseSettings
+from pydantic import validator
 from pydantic import BaseSettings, validator
 from pathlib import Path
 import os
