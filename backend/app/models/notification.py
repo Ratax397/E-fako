@@ -1,8 +1,8 @@
-"""Modèle Notification pour la base de données."""
+"""Modèle Notification pour la base de données MySQL."""
 
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, Enum, ForeignKey
 from sqlalchemy.sql import func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.mysql import CHAR
 from sqlalchemy.orm import relationship
 import uuid
 import enum
@@ -46,8 +46,8 @@ class Notification(Base):
     
     __tablename__ = "notifications"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
     
     # Contenu
     title = Column(String(255), nullable=False)
@@ -102,7 +102,7 @@ class NotificationTemplate(Base):
     
     __tablename__ = "notification_templates"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(100), unique=True, nullable=False)
     description = Column(Text, nullable=True)
     
@@ -129,8 +129,8 @@ class NotificationDevice(Base):
     
     __tablename__ = "notification_devices"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
     
     # Informations de l'appareil
     device_token = Column(String(255), unique=True, nullable=False)

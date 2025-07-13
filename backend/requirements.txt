@@ -4,17 +4,18 @@ uvicorn[standard]==0.24.0
 pydantic==2.5.0
 pydantic-settings==2.1.0
 
-# Base de données
+# Base de données MySQL
 sqlalchemy==2.0.23
-psycopg2-binary==2.9.9
+mysqlclient==2.2.0
+pymysql==1.1.0
+aiomysql==0.2.0
+cryptography==41.0.8
 alembic==1.13.1
-asyncpg==0.29.0
 
 # Authentication et sécurité
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
-cryptography==41.0.8
 
 # Reconnaissance faciale
 opencv-python==4.8.1.78

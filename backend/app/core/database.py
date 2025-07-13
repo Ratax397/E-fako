@@ -1,4 +1,4 @@
-"""Configuration de la base de données SQLAlchemy."""
+"""Configuration de la base de données SQLAlchemy pour MySQL."""
 
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from typing import Generator, AsyncGenerator
 import asyncio
-import asyncpg
+import pymysql
 
 from app.core.config import settings
 
@@ -15,7 +15,9 @@ engine = create_engine(
     settings.DATABASE_URL,
     pool_pre_ping=True,
     pool_recycle=300,
-    echo=settings.DEBUG
+    echo=settings.DEBUG,
+    pool_size=10,
+    max_overflow=20
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -25,7 +27,9 @@ async_engine = create_async_engine(
     settings.DATABASE_URL_ASYNC,
     pool_pre_ping=True,
     pool_recycle=300,
-    echo=settings.DEBUG
+    echo=settings.DEBUG,
+    pool_size=10,
+    max_overflow=20
 )
 
 AsyncSessionLocal = sessionmaker(
@@ -57,9 +61,9 @@ async def init_db() -> None:
     try:
         async with async_engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        print("Base de données initialisée avec succès")
+        print("Base de données MySQL initialisée avec succès")
     except Exception as e:
-        print(f"Erreur lors de l'initialisation de la base de données: {e}")
+        print(f"Erreur lors de l'initialisation de la base de données MySQL: {e}")
         raise
 
 
@@ -77,5 +81,5 @@ async def test_db_connection() -> bool:
             await conn.execute("SELECT 1")
         return True
     except Exception as e:
-        print(f"Erreur de connexion à la base de données: {e}")
+        print(f"Erreur de connexion à la base de données MySQL: {e}")
         return False

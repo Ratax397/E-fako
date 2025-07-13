@@ -1,8 +1,8 @@
-"""Modèle WasteRecord pour la base de données."""
+"""Modèle WasteRecord pour la base de données MySQL."""
 
 from sqlalchemy import Column, Integer, String, Float, DateTime, Text, Boolean, Enum, ForeignKey
 from sqlalchemy.sql import func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.mysql import CHAR
 from sqlalchemy.orm import relationship
 import uuid
 import enum
@@ -40,8 +40,8 @@ class WasteRecord(Base):
     
     __tablename__ = "waste_records"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
     
     # Informations sur le déchet
     waste_type = Column(Enum(WasteType), nullable=False)
@@ -69,7 +69,7 @@ class WasteRecord(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Informations de traitement
-    processor_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    processor_id = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
     processing_notes = Column(Text, nullable=True)
     
     # Score et points
@@ -78,7 +78,7 @@ class WasteRecord(Base):
     
     # Validation
     is_validated = Column(Boolean, default=False)
-    validated_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    validated_by = Column(CHAR(36), ForeignKey("users.id"), nullable=True)
     validation_date = Column(DateTime(timezone=True), nullable=True)
     validation_notes = Column(Text, nullable=True)
     
@@ -108,7 +108,7 @@ class WasteCategory(Base):
     
     __tablename__ = "waste_categories"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(100), unique=True, nullable=False)
     description = Column(Text, nullable=True)
     color_code = Column(String(7), nullable=True)  # Hex color
@@ -132,7 +132,7 @@ class WasteStatistics(Base):
     
     __tablename__ = "waste_statistics"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     
     # Période
     period_start = Column(DateTime(timezone=True), nullable=False)
