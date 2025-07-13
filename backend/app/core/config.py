@@ -1,11 +1,15 @@
 """Configuration de l'application avec Pydantic Settings."""
 
+from dotenv import load_dotenv
+import os
+
+# OBLIGATOIRE : Charger le .env
+load_dotenv()
+
 from typing import List, Optional
 from pydantic_settings import BaseSettings
 from pydantic import validator
-from pydantic import BaseSettings, validator
 from pathlib import Path
-import os
 
 
 class Settings(BaseSettings):
@@ -30,22 +34,22 @@ class Settings(BaseSettings):
     # Chiffrement biométrique
     BIOMETRIC_ENCRYPTION_KEY: str
     
-    # Redis
-    REDIS_URL: str
+    # Redis (optionnel)
+    REDIS_URL: str = "redis://localhost:6379/0"
     
     # Socket.IO
     SOCKETIO_SECRET_KEY: str
     
-    # Notifications push
-    FCM_SERVER_KEY: str
-    FCM_SENDER_ID: str
+    # Notifications push (optionnel)
+    FCM_SERVER_KEY: str = ""
+    FCM_SENDER_ID: str = ""
     
     # CORS
-    CORS_ORIGINS: List[str] = []
+    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173", "http://localhost:8080"]
     
-    # Celery
-    CELERY_BROKER_URL: str
-    CELERY_RESULT_BACKEND: str
+    # Celery (optionnel)
+    CELERY_BROKER_URL: str = "redis://localhost:6379/1"
+    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/2"
     
     # Reconnaissance faciale
     FACE_RECOGNITION_TOLERANCE: float = 0.6
