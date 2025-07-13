@@ -1,0 +1,58 @@
+# FastAPI et dépendances web
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Base de données
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.13.1
+asyncpg==0.29.0
+
+# Authentication et sécurité
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+cryptography==41.0.8
+
+# Reconnaissance faciale
+opencv-python==4.8.1.78
+face-recognition==1.3.0
+dlib==19.24.2
+numpy==1.24.3
+Pillow==10.1.0
+
+# Socket.IO pour temps réel
+python-socketio==5.11.0
+python-engineio==4.7.1
+
+# Notifications push
+pyfcm==1.5.4
+requests==2.31.0
+
+# Utilitaires
+python-dotenv==1.0.0
+redis==5.0.1
+celery==5.3.4
+
+# Tests
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+pytest-cov==4.1.0
+
+# Documentation
+sphinx==7.2.6
+sphinx-autodoc-typehints==1.25.2
+
+# Logging et monitoring
+structlog==23.2.0
+prometheus-client==0.19.0
+
+# CORS
+python-cors==1.0.0
+
+# Validation et formats
+email-validator==2.1.0
+python-dateutil==2.8.2

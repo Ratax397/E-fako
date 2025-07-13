@@ -1,0 +1,15 @@
+atao @terminal integré
+
+installe tailwind css
+
+npm install -D @tailwindcss/postcss autoprefixer
+atao @postcss.config.js : module.exports = {
+  plugins: [
+    require('@tailwindcss/postcss'),
+    require('autoprefixer'),
+  ],
+};
+
+
+mains .css @render asset ao asina
+@import "tailwindcss";   de importena @main.tsx
