@@ -4,10 +4,22 @@ import asyncio
 import json
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
-from pyfcm import FCMNotification
+try:
+    from pyfcm import FCMNotification
+    FCM_AVAILABLE = True
+except ImportError:
+    FCM_AVAILABLE = False
+    FCMNotification = None
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_
-from celery import Celery
+
+try:
+    from celery import Celery
+    CELERY_AVAILABLE = True
+except ImportError:
+    CELERY_AVAILABLE = False
+    Celery = None
 
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
@@ -25,18 +37,24 @@ from app.services.socketio_service import socket_service
 logger = get_logger(__name__)
 
 # Configuration Celery pour les tâches asynchrones
-celery_app = Celery(
-    "notifications",
-    broker=settings.CELERY_BROKER_URL,
-    backend=settings.CELERY_RESULT_BACKEND
-)
+if CELERY_AVAILABLE:
+    celery_app = Celery(
+        "notifications",
+        broker=settings.CELERY_BROKER_URL,
+        backend=settings.CELERY_RESULT_BACKEND
+    )
+else:
+    celery_app = None
 
 
 class NotificationService:
     """Service de gestion des notifications."""
     
     def __init__(self):
-        self.fcm = FCMNotification(api_key=settings.FCM_SERVER_KEY)
+        if FCM_AVAILABLE and settings.FCM_SERVER_KEY:
+            self.fcm = FCMNotification(api_key=settings.FCM_SERVER_KEY)
+        else:
+            self.fcm = None
     
     async def create_notification(
         self, 
@@ -509,40 +527,41 @@ notification_service = NotificationService()
 
 
 # Tâches Celery pour le traitement asynchrone
-@celery_app.task
-def process_scheduled_notifications():
-    """Tâche Celery pour traiter les notifications planifiées."""
-    async def run():
-        async with AsyncSessionLocal() as db:
-            count = await notification_service.process_scheduled_notifications(db)
-            logger.info(f"Processed {count} scheduled notifications")
-    
-    asyncio.run(run())
+if CELERY_AVAILABLE and celery_app:
+    @celery_app.task
+    def process_scheduled_notifications():
+        """Tâche Celery pour traiter les notifications planifiées."""
+        async def run():
+            async with AsyncSessionLocal() as db:
+                count = await notification_service.process_scheduled_notifications(db)
+                logger.info(f"Processed {count} scheduled notifications")
+        
+        asyncio.run(run())
 
 
-@celery_app.task
-def retry_failed_notifications():
-    """Tâche Celery pour réessayer les notifications échouées."""
-    async def run():
-        async with AsyncSessionLocal() as db:
-            count = await notification_service.retry_failed_notifications(db)
-            logger.info(f"Retried {count} failed notifications")
-    
-    asyncio.run(run())
+    @celery_app.task
+    def retry_failed_notifications():
+        """Tâche Celery pour réessayer les notifications échouées."""
+        async def run():
+            async with AsyncSessionLocal() as db:
+                count = await notification_service.retry_failed_notifications(db)
+                logger.info(f"Retried {count} failed notifications")
+        
+        asyncio.run(run())
 
-
-# Configuration des tâches périodiques
-from celery.schedules import crontab
-
-celery_app.conf.beat_schedule = {
-    'process-scheduled-notifications': {
-        'task': 'app.services.notification_service.process_scheduled_notifications',
-        'schedule': crontab(minute='*/1'),  # Chaque minute
-    },
-    'retry-failed-notifications': {
-        'task': 'app.services.notification_service.retry_failed_notifications',
-        'schedule': crontab(minute='*/5'),  # Toutes les 5 minutes
-    },
-}
-
-celery_app.conf.timezone = 'UTC'
+    # Configuration des tâches périodiques
+    try:
+        from celery.schedules import crontab
+        celery_app.conf.beat_schedule = {
+            'process-scheduled-notifications': {
+                'task': 'app.services.notification_service.process_scheduled_notifications',
+                'schedule': crontab(minute='*/1'),  # Chaque minute
+            },
+            'retry-failed-notifications': {
+                'task': 'app.services.notification_service.retry_failed_notifications',
+                'schedule': crontab(minute='*/5'),  # Toutes les 5 minutes
+            },
+        }
+        celery_app.conf.timezone = 'UTC'
+    except ImportError:
+        pass

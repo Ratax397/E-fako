@@ -5,8 +5,19 @@ from typing import Optional, Dict, Any
 import jwt
 import bcrypt
 import secrets
-import face_recognition
-import numpy as np
+try:
+    import face_recognition
+    import numpy as np
+    from numpy import ndarray
+    FACE_RECOGNITION_AVAILABLE = True
+except ImportError:
+    FACE_RECOGNITION_AVAILABLE = False
+    face_recognition = None
+    np = None
+    # Type placeholders
+    class ndarray:
+        pass
+
 from PIL import Image
 import base64
 import io
@@ -154,20 +165,27 @@ class AuthService:
         logger.info(f"User authenticated: {user.username}")
         return user
     
-    def encode_face_data(self, face_encoding: np.ndarray) -> bytes:
+    def encode_face_data(self, face_encoding: ndarray) -> bytes:
         """Chiffrer les données faciales."""
+        if not FACE_RECOGNITION_AVAILABLE:
+            raise ImportError("Face recognition library not available")
         face_bytes = face_encoding.tobytes()
         encrypted_data = self.cipher_suite.encrypt(face_bytes)
         return encrypted_data
     
-    def decode_face_data(self, encrypted_data: bytes) -> np.ndarray:
+    def decode_face_data(self, encrypted_data: bytes) -> ndarray:
         """Déchiffrer les données faciales."""
+        if not FACE_RECOGNITION_AVAILABLE:
+            raise ImportError("Face recognition library not available")
         decrypted_data = self.cipher_suite.decrypt(encrypted_data)
         face_encoding = np.frombuffer(decrypted_data, dtype=np.float64)
         return face_encoding
     
-    def extract_face_encoding(self, image_data: str) -> Optional[np.ndarray]:
+    def extract_face_encoding(self, image_data: str) -> Optional[ndarray]:
         """Extraire l'encodage facial d'une image."""
+        if not FACE_RECOGNITION_AVAILABLE:
+            raise ImportError("Face recognition library not available")
+            
         try:
             # Décoder l'image base64
             header, encoded = image_data.split(',', 1)
