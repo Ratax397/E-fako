@@ -358,4 +358,4 @@ async def periodic_dashboard_updates():
 
 
 # Démarrer les tâches de fond
-asyncio.create_task(periodic_dashboard_updates())
+# Note: periodic_dashboard_updates() doit être démarré par l'application principale

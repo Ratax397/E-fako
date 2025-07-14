@@ -6,9 +6,9 @@ import os
 # OBLIGATOIRE : Charger le .env
 load_dotenv()
 
-from typing import List, Optional
-from pydantic_settings import BaseSettings
-from pydantic import validator
+from typing import List, Optional, Union
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
 from pathlib import Path
 
 
@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     FCM_SENDER_ID: str = ""
     
     # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173", "http://localhost:8080"]
+    CORS_ORIGINS: Union[str, List[str]] = ["http://localhost:3000", "http://localhost:5173", "http://localhost:8080"]
     
     # Celery (optionnel)
     CELERY_BROKER_URL: str = "redis://localhost:6379/1"
@@ -61,14 +61,14 @@ class Settings(BaseSettings):
     FACE_ENCODINGS_DIR: Path = BASE_DIR / "face_encodings"
     LOGS_DIR: Path = BASE_DIR / "logs"
     
-    @validator("CORS_ORIGINS", pre=True)
+    @field_validator("CORS_ORIGINS", mode="before")
     def assemble_cors_origins(cls, v):
         """Assembler les origines CORS."""
         if isinstance(v, str):
             return [i.strip() for i in v.split(",")]
         return v
     
-    @validator("UPLOAD_DIR", "FACE_ENCODINGS_DIR", "LOGS_DIR", pre=True)
+    @field_validator("UPLOAD_DIR", "FACE_ENCODINGS_DIR", "LOGS_DIR", mode="before")
     def ensure_directories_exist(cls, v):
         """Créer les répertoires s'ils n'existent pas."""
         if isinstance(v, str):
@@ -76,9 +76,7 @@ class Settings(BaseSettings):
         v.mkdir(parents=True, exist_ok=True)
         return v
     
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
 
 # Instance globale de configuration

@@ -7,7 +7,7 @@ from pathlib import Path
 import structlog
 from structlog.stdlib import filter_by_level
 from structlog.dev import ConsoleRenderer
-from structlog.processors import JSONRenderer, TimeStamper, add_logger_name, add_log_level
+from structlog.processors import JSONRenderer, TimeStamper, add_log_level
 
 from app.core.config import settings
 
@@ -25,7 +25,6 @@ def setup_logging() -> None:
     # Processeurs communs
     shared_processors = [
         filter_by_level,
-        add_logger_name,
         add_log_level,
         TimeStamper(fmt="iso"),
         structlog.stdlib.PositionalArgumentsFormatter(),
