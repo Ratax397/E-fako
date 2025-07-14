@@ -10,6 +10,13 @@
     "composite": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
+    "target": "ES2015",
+    "lib": ["ES2015", "DOM", "DOM.Iterable"],
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
     "paths": {
       "@renderer/*": [
         "src/renderer/src/*"
